@@ -20,7 +20,10 @@ class LlamaVision:
         ).to(self.device)
         self.processor = AutoProcessor.from_pretrained(self.model_id)
     
-    def generate(self, prompt: str, image=None, max_new_token=1500) -> str:
+    def generate(self, prompt: str, image=None, max_new_token=1500, temperature=0.8) -> str:
+        """
+        Generate text based on the prompt and optional image input.
+        """
         prompt_template = "<|begin_of_text|>{}".format(prompt)
         
         if image is not None:
@@ -28,14 +31,15 @@ class LlamaVision:
          
         inputs = self.processor(image, prompt_template, return_tensors="pt").to(self.device)
 
-        output = self.model.generate(**inputs, do_sample=True, max_new_tokens=max_new_token, temperature=0.8, top_p=0.9)
+        output = self.model.generate(**inputs, do_sample=True, max_new_tokens=max_new_token, temperature=temperature, top_p=0.9)
         
         result = self.processor.decode(output[0])[len(prompt_template) : ]
         
         return result
 
-    def __call__(self, prompt: str, image=None, max_new_token=1500):
-        return self.generate(prompt, image, max_new_token)
+    def __call__(self, prompt: str, image=None, max_new_token=1500, temperature=0.8):
+        self.__call__.__doc__ = self.generate.__doc__
+        return self.generate(prompt, image, max_new_token, temperature)
 
 if __name__ == "__main__":
     llm = LlamaVision()
