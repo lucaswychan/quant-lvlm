@@ -1,0 +1,6 @@
+news.json
+test.py
+venv/
+.vscode/
+.idea/
+__pycache__/
