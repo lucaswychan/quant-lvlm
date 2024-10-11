@@ -3,6 +3,7 @@ import json
 import requests
 import pandas as pd
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 from requests import Session
 from requests_cache import CacheMixin, SQLiteCache
@@ -34,19 +35,35 @@ def get_news(tickers: list[str]) -> dict[str, pd.DataFrame]:
     
     return tickers_news
 
-def get_news_contents(news_url):
+def get_news_content(news_url: str) -> str:
     response = requests.get(news_url)
-    if response.status_code == 200:
-        return response.text
-    else:
-        return None
+    if response.status_code != 200:
+        print(f"Failed to get content from {news_url} with status code {response.status_code}")
+        return ""
+
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    content = soup.find("div", class_="caas-body")
+
+    text = content.text
+    words_to_remove = ["Story continues", "View comments"]
+    for word in words_to_remove:
+        text = text.replace(word, "")
+    
+    return text
     
 
 def process_news(tickers_news: dict[str, pd.DataFrame]):
     for ticker, news_df in tickers_news.items():
-        pass
+        print(f"Processing news for {ticker}")
+        for url in news_df["link"]:
+            print(url)
+            content = get_news_content(url)
+            print(content)
+            print("="*50)
     
 
 if __name__ == "__main__":
     tickers = ["AAPL", "GOOGL", "AMZN"]
-    get_news(tickers)
+    tickers_news = get_news(tickers)
+    process_news(tickers_news)
