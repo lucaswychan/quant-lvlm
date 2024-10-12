@@ -21,12 +21,13 @@ _ONE_DAY = 86400
 
 
 def initialize():
-    global session
+    global yf_session
+    global requests_session
 
     class CachedLimiterSession(CacheMixin, LimiterMixin, Session):
         pass
 
-    session = CachedLimiterSession(
+    yf_session = CachedLimiterSession(
         limiter=Limiter(
             RequestRate(10, Duration.SECOND * 5)
         ),  # max 10 requests per 5 seconds
@@ -42,8 +43,8 @@ def initialize():
 
     adapter = HTTPAdapter(max_retries=retry)
 
-    session = Session()
-    session.mount("https://", adapter)
+    requests_session = Session()
+    requests_session.mount("https://", adapter)
 
 
 initialize()
@@ -66,7 +67,7 @@ def get_news_obj(tickers: list[str]) -> dict[str, pd.DataFrame]:
         ]
         return news
 
-    tickers_obj = yf.Tickers(tickers, session=session)
+    tickers_obj = yf.Tickers(tickers, session=yf_session)
     tickers_news = {
         ticker: filter_time(pd.DataFrame(news))
         for ticker, news in tickers_obj.news().items()
@@ -76,7 +77,7 @@ def get_news_obj(tickers: list[str]) -> dict[str, pd.DataFrame]:
 
 
 def get_each_news_content(news_url: str) -> tuple[str, Optional[Image.Image]]:
-    response = session.get(news_url, headers=_HEADER)
+    response = requests_session.get(news_url, headers=_HEADER)
 
     if response.status_code != 200:
         return (
@@ -99,7 +100,7 @@ def get_each_news_content(news_url: str) -> tuple[str, Optional[Image.Image]]:
     # get the image
     if image_element := soup.find("img", class_="caas-img has-preview"):
         image_url = image_element["src"]
-        response = session.get(image_url)
+        response = requests_session.get(image_url)
         image = Image.open(BytesIO(response.content))
 
     return text, image
