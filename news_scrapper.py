@@ -20,7 +20,7 @@ class CachedLimiterSession(CacheMixin, LimiterMixin, Session):
 
 
 class FinanceNewsScrapper:
-    def __init__(self, time_range=86400):
+    def __init__(self, time_range: int = 86400):
         # constant variables
         self.HEADER = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0.1 Safari/605.1.15"
@@ -47,7 +47,9 @@ class FinanceNewsScrapper:
         self.requests_session = Session()
         self.requests_session.mount("https://", adapter)
 
-    def scrap(self, tickers: list[str], verbose=True) -> dict[str, dict]:
+    def scrap(
+        self, tickers: list[str], verbose: bool = True
+    ) -> dict[str, dict[str, tuple]]:
         """
         Scrap the news for each ticker in the list. The news will be stored in a dictionary where the key is the ticker and the value is another dictionary where the key is the title of the news and the value is the content of the news.
         """
@@ -58,13 +60,15 @@ class FinanceNewsScrapper:
             if verbose:
                 print(f"Processing news for {ticker}")
 
-            ticker_news_map[ticker] = {}
+            news_map = {}
 
             for i in range(len(news_df)):
                 title, url = news_df.iloc[i][["title", "link"]]
                 contents = self._get_each_news_content(url)
 
-                ticker_news_map[ticker][title] = contents
+                news_map[title] = contents
+
+            ticker_news_map[ticker] = news_map.copy()
 
         return ticker_news_map
 
@@ -132,6 +136,7 @@ class FinanceNewsScrapper:
 
 
 if __name__ == "__main__":
+
     with open("tickers.json", "r") as f:
         tickers = json.load(f)
 
