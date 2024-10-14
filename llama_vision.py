@@ -23,7 +23,7 @@ class LlamaVision:
         self.processor = AutoProcessor.from_pretrained(self.model_id)
 
     def generate(
-        self, prompt: str, image=None, max_new_token=1500, temperature=0.8
+        self, prompt: str, image=None, max_new_token=1500, temperature=0.4
     ) -> str:
         """
         Generate text based on the prompt and optional image input.
@@ -50,7 +50,6 @@ class LlamaVision:
         return result
 
     def __call__(self, prompt: str, image=None, max_new_token=1500, temperature=0.8):
-        self.__call__.__doc__ = self.generate.__doc__
         return self.generate(prompt, image, max_new_token, temperature)
 
 

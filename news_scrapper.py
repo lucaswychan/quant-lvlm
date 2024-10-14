@@ -63,10 +63,10 @@ class FinanceNewsScrapper:
             news_map = {}
 
             for i in range(len(news_df)):
-                title, url = news_df.iloc[i][["title", "link"]]
-                contents = self._get_each_news_content(url)
+                title, news_url = news_df.iloc[i][["title", "link"]]
+                text_and_images = self._get_each_news_content(news_url)
 
-                news_map[title] = contents
+                news_map[title] = (*text_and_images, news_url)
 
             ticker_news_map[ticker] = news_map.copy()
 
