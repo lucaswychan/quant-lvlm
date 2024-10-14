@@ -8,6 +8,7 @@ if available_gpu_index is None:
     raise RuntimeError("No available GPU found")
 
 available_cuda = f"cuda:{available_gpu_index}"
+print(f"Available GPU index: {available_gpu_index}")
 
 
 class LlamaVision:
