@@ -24,7 +24,7 @@ class LlamaVision:
         self.processor = AutoProcessor.from_pretrained(self.model_id)
 
     def generate(
-        self, prompt: str, image=None, max_new_token=1500, temperature=0.4
+        self, prompt: str, image=None, max_new_token=1500, temperature=0.6
     ) -> str:
         """
         Generate text based on the prompt and optional image input.
@@ -47,8 +47,6 @@ class LlamaVision:
             self.processor.tokenizer.convert_tokens_to_ids("``"),
         ]
         
-        print(inputs)
-
         output = self.model.generate(
             **inputs,
             do_sample=True,
@@ -60,9 +58,6 @@ class LlamaVision:
         )
 
         result = self.processor.decode(output[0, len(inputs["input_ids"][0]):-1])
-        print(len(inputs['input_ids'][0]))
-        
-        print(self.processor.decode(output[0]), "\n\n=====================\n")
 
         return result
 
