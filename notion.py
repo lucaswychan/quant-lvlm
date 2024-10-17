@@ -1,8 +1,9 @@
-import os
-from notion_client import Client
-from dotenv import load_dotenv
 import json
+import os
 from datetime import datetime
+
+from dotenv import load_dotenv
+from notion_client import Client
 
 load_dotenv()
 
@@ -37,15 +38,74 @@ class NotionClient:
 
         return new_created_page
 
-    def add_element(self, page_id: str, content_type: str, content_text: str) -> None:
-        """ """
+    def add_element(
+        self,
+        page_id: str,
+        content_type: str,
+        content_text: str,
+        is_bold: bool = False,
+        is_italic: bool = False,
+        is_strikethrough: bool = False,
+        is_underline: bool = False,
+        is_code: bool = False,
+        color: str = "default",
+        link: str = None,
+    ) -> None:
+        """
+        Add a new element to the page.
+        """
+
+        link_obj = {"url": link} if link is not None else None
+
         element = [
             {
                 "object": "block",
                 "type": content_type,
                 content_type: {
-                    "rich_text": [{"type": "text", "text": {"content": content_text}}]
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {"content": content_text, "link": link_obj},
+                            "annotations": {
+                                "bold": is_bold,
+                                "italic": is_italic,
+                                "strikethrough": is_strikethrough,
+                                "underline": is_underline,
+                                "code": is_code,
+                                "color": color,
+                            },
+                        }
+                    ]
                 },
+            }
+        ]
+        self._client.blocks.children.append(block_id=page_id, children=element)
+
+    def add_multiple_elements(
+        self, page_id: str, elements_to_be_added: list[dict]
+    ) -> None:
+        """
+        Add multiple elements to the page.
+        """
+
+        for element in elements_to_be_added:
+            self.add_element(page_id, **element)
+
+    def add_new_line(self, page_id: str) -> None:
+        """
+        Add a new line to the page.
+        """
+        self.add_element(page_id, "paragraph", " ")
+
+    def add_divider(self, page_id: str) -> None:
+        """
+        Add a new divider to the page.
+        """
+        element = [
+            {
+                "object": "block",
+                "type": "divider",
+                "divider": {},
             }
         ]
         self._client.blocks.children.append(block_id=page_id, children=element)
@@ -82,77 +142,46 @@ class NotionClient:
         self._client.pages.update(self._check_subpage_exists(title)[1], archived=True)
 
 
-# properties_to_update = {
-#     "title": {"title": [{"text": {"content": "Finance News"}}]},
-# }
-
-# notion.pages.update(
-#     _NOTION_PAGE_ID,
-#     properties=properties_to_update,
-# )
-
-
-# subpages = get_subpages(notion)
-
-# existing_blocks = notion.blocks.children.list(block_id=_NOTION_PAGE_ID).get("results")
-
-# with open("notion_data.json", "w") as f:
-#     json.dump(existing_blocks, f, indent=4)
-
-# new_content = [
-#     {
-#         "object": "block",
-#         "type": "paragraph",
-#         "paragraph": {
-#             "rich_text": [{"type": "text", "text": {"content": "This is a new paragraph."}}]
-#         }
-#     },
-#     {
-#         "object": "block",
-#         "type": "heading_2",
-#         "heading_2": {
-#             "rich_text": [{"type": "text", "text": {"content": "This is a new heading"}}]
-#         }
-#     },
-#     {
-#         "object": "block",
-#         "type": "bulleted_list_item",
-#         "bulleted_list_item": {
-#             "rich_text": [{"type": "text", "text": {"content": "This is a bullet point"}}]
-#         }
-#     }
-# ]
-
-# notion.blocks.children.append(
-#     block_id=_NOTION_PAGE_ID,
-#     children=new_content
-# )
-
-# print(existing_blocks)
-
-# print(subpages)
-# for subpage in subpages:
-#     print(subpage["id"], subpage["properties"]["title"]["title"][0]["text"]["content"])
-#     subpage_id = subpage["id"]
-#     if subpage_id == _NOTION_PAGE_ID:
-#         continue
-#     subpage_title = subpage["properties"]["title"]["title"][0]["text"]["content"]
-
-#     # Update the title of the subpage
-#     properties_to_update = {
-#         "title": {
-#             "title": [{"text": {"content": f"{subpage_title} - Finance News Updated"}}]
-#         },
-#     }
-
-#     notion.pages.update(
-#         subpage_id,
-#         properties=properties_to_update,
-#     )
 
 if __name__ == "__main__":
     notion = NotionClient()
-    tickers_news = None
-    today = datetime.today().strftime("%m-%d-%Y")
-    print(today)
-    # notion.delete_page(f"cde - Finance News")
+
+    created_page = notion.create_page("Test Design")
+    page_id = created_page["id"]
+
+    elements = [
+        {"content_type": "paragraph", "content_text": " "},
+        {
+            "content_type": "heading_2",
+            "content_text": "Title 2: the title of the first news",
+        },
+        {"content_type": "paragraph", "content_text": "Got some conclusion !!!!"},
+        {"content_type": "paragraph", "content_text": " "},
+        {
+            "content_type": "paragraph",
+            "content_text": "Sentiment: negatice",
+            "is_bold": True,
+        },
+        {
+            "content_type": "paragraph",
+            "content_text": "https://google.com",
+            "link": "https://google.com",
+        },
+        {"content_type": "paragraph", "content_text": " "},
+    ]
+
+    for element in elements:
+        notion.add_element(page_id, **element)
+
+    # notion.add_space(page_id)
+
+    # notion.add_element(page_id, "heading_2", "Title 1: the title of the first news")
+    # notion.add_element(page_id, "paragraph", "Got some conclusion")
+    # notion.add_space(page_id)
+    # notion.add_element(page_id, "paragraph", "Sentiment: positive", is_bold=True)
+    # notion.add_element(
+    #     page_id, "paragraph", "https://google.com", link="https://google.com"
+    # )
+    # notion.add_space(page_id)
+
+    notion.add_divider(page_id)

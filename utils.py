@@ -3,7 +3,7 @@ import re
 import nvidia_smi
 import torch
 
-CLEANR = re.compile("<.*?>")
+from notion import NotionClient
 
 
 def get_available_gpu_idx():
@@ -39,18 +39,60 @@ def get_available_gpu_idx():
     return None
 
 
-def clean_html_tag(raw_text: str) -> str:
-    cleaned_text = re.sub(CLEANR, "", raw_text)
-    return cleaned_text
+def notion_add_news_part(
+    notion_client: NotionClient,
+    page_id: str,
+    news_title: str,
+    news_summary: str,
+    news_url: str,
+    ticker: str,
+):
+    """
+    Add the news part to the page. There is a certain format for the news part designed by me. You can change to your own format if you want.
+    """
+    STOCK_DATA_URL = "https://finance.yahoo.com/quote/{}"
+
+    space_obj = {"content_type": "paragraph", "content_text": " "}
+
+    elements_to_be_added = [
+        space_obj,
+        {"content_type": "heading_2", "content_text": news_title},
+        {
+            "content_type": "paragraph",
+            "content_text": f"Ticker: {ticker}",
+            "is_bold": True,
+            "is_italic": True,
+            "link": STOCK_DATA_URL.format(ticker),
+        },
+        space_obj,
+        {"content_type": "paragraph", "content_text": news_summary},
+        space_obj,
+        {"content_type": "paragraph", "content_text": "URL:", "is_bold": True},
+        {
+            "content_type": "paragraph",
+            "content_text": news_url,
+            "link": news_url,
+            "is_bold": True,
+        },
+        space_obj,
+    ]
+
+    notion_client.add_multiple_elements(page_id, elements_to_be_added)
+    notion_client.add_divider(page_id)
 
 
 if __name__ == "__main__":
     # Usage
-    available_gpu = get_available_gpu_idx()
+    notion = NotionClient()
 
-    if available_gpu is not None:
-        print(f"Available GPU index: {available_gpu}")
-        # You can now use this GPU index in your PyTorch code
-        device = torch.device(f"cuda:{available_gpu}")
-    else:
-        print("No available GPU found")
+    sub_page = notion.create_page("Test Page")
+    sub_page_id = sub_page["id"]
+
+    notion_add_news_part(
+        notion,
+        sub_page_id,
+        "Title 2: Some news title",
+        "Got some summary and conclusion second one",
+        "https://google.com",
+        "TSLA",
+    )
