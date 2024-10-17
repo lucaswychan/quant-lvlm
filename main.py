@@ -4,7 +4,7 @@ from datetime import datetime
 from llama_vision import LlamaVision
 from news_scrapper import FinanceNewsScrapper
 from notion import NotionClient
-from prompt_template import PROMPT_TEMPLATE
+from const import PROMPT_TEMPLATE, VLM_ROLE
 from utils import notion_add_news_part
 
 
@@ -12,6 +12,8 @@ def main():
     notion = NotionClient()
     scrapper = FinanceNewsScrapper()
     vlm = LlamaVision()
+    
+    vlm_role = ""
 
     with open("tickers.json", "r") as f:
         tickers = json.load(f)["tickers"]
@@ -29,7 +31,7 @@ def main():
 
             prompt = PROMPT_TEMPLATE.format(title=news_title, news_text=news_text)
 
-            vlm_response = vlm(prompt, image)
+            vlm_response = vlm(VLM_ROLE, prompt, image)
 
             notion_add_news_part(
                 notion, sub_pages_id, news_title, vlm_response, news_url, ticker
