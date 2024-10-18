@@ -19,5 +19,5 @@ PROMPT_TEMPLATE = """
 
     <your summary>
     
-    Sentiment: <positive/negative/neutral>
+    Sentiment: <Positive/Negative/Neutral>
     """
