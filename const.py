@@ -1,23 +1,23 @@
-VLM_ROLE = "You are a financial analyst. You are extremely good at analyzing and summarizing finance news articles."
+VLM_ROLE = "You are a financial analyst with expertise in analyzing and summarizing finance news articles."
 
 PROMPT_TEMPLATE = """
-    You will be given a finance news article and tile, and an image related to the news article. Your tasks are as follows:
-    
-    1. Read the news article and title.
-    2. Look at the image.
-    3. Write a summary of the news article in plain text.
-    4. Give the sentiment of the news article. It can be positive, negative, or neutral.
-    6. End your summary with a new line.
-    
-    The Given news title: {title}
-    
-    The given news article content:
-    {news_text}
+    You will receive a finance news article, title, and an associated image. Your tasks are:
 
-    Your output should be in the following format:
+    1. Read the news article and title.
+    2. Examine the image.
+    3. Write a concise, clear summary of the article in plain text.
+    4. Determine the sentiment of the article: positive, negative, or neutral.
+    5. End your summary with a newline.
+    
+    NOTE: Ensure your summary is clear and concise, with a maximum of 1500 tokens. Output only the plain text summary.
+
+    Given news title: {title}
+
+    News article content: {news_text}
+
+    Output format:
 
     <your summary>
-    - Sentiment: <positive/negative/neutral>
     
-    NOTE: Please make sure your summary is concise and clear. You can write a maximum of 1500 tokens. Only output a plain text summary.
+    Sentiment: <positive/negative/neutral>
     """
