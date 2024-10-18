@@ -16,7 +16,7 @@ By changing the desired tickers in [`tickers.json`](tickers.json), you can analy
 
 For more convenience, you can also use the [Shortcut](https://support.apple.com/guide/shortcuts/welcome/ios) in iPhone to run the code, without the need of entering the command in terminal.
 
-![img](assests/iphone_shortcut.jpg)
+<img src="assests/iphone_shortcut.jpg" style="width: 50%; margin: auto; display: block;">
 
 ## Time Series Analysis
 Stay tuned.
