@@ -56,7 +56,7 @@ def notion_add_news_part(
 
     elements_to_be_added = [
         space_obj,
-        {"content_type": "heading_2", "content_text": news_title},
+        {"content_type": "heading_2", "content_text": news_title, "color": "blue"},
         {
             "content_type": "paragraph",
             "content_text": f"Ticker: {ticker}",
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         notion,
         sub_page_id,
         "Title 2: Some news title",
-        "Got some summary and conclusion second one",
+        "Got some summary and conclusion second one. Longer Text : " * 10,
         "https://google.com",
         "TSLA",
     )

@@ -14,6 +14,10 @@ NOTION_PAGE_ID = <your notion page ID of the page you want to add the news>
 
 By changing the desired tickers in [`tickers.json`](tickers.json), you can analyze multiple stocks.
 
+For more convenience, you can also use the [Shortcut](https://support.apple.com/guide/shortcuts/welcome/ios) in iPhone to run the code, without the need of entering the command in terminal.
+
+![img](assests/iphone_shortcut.jpg)
+
 ## Time Series Analysis
 Stay tuned.
 
