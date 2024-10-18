@@ -9,7 +9,7 @@ PROMPT_TEMPLATE = """
     4. Determine the sentiment of the article: positive, negative, or neutral.
     5. End your summary with a newline.
     
-    NOTE: Ensure your summary is clear and concise, with a maximum of 1500 tokens. Output only the plain text summary.
+    NOTE: Ensure your summary is clear and concise, with a maximum of 1500 tokens. Output only the plain text summary. You MUST output the sentiment of the article.
 
     Given news title: {title}
 
