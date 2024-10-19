@@ -46,6 +46,7 @@ def notion_add_news_part(
     news_summary: str,
     news_url: str,
     ticker: str,
+    current_time: str,
 ):
     """
     Add the news part to the page. There is a certain format for the news part designed by me. You can change to your own format if you want.
@@ -56,7 +57,16 @@ def notion_add_news_part(
 
     elements_to_be_added = [
         space_obj,
+        # Title
         {"content_type": "heading_2", "content_text": news_title, "color": "blue"},
+        # Time added
+        {
+            "content_type": "paragraph",
+            "content_text": f"Time added : {current_time}",
+            "is_italic": True,
+            "color": "gray",
+        },
+        # Ticker information
         {
             "content_type": "paragraph",
             "content_text": f"Ticker: {ticker}",
@@ -65,9 +75,12 @@ def notion_add_news_part(
             "link": STOCK_DATA_URL.format(ticker),
         },
         space_obj,
+        # News summary
         {"content_type": "paragraph", "content_text": news_summary},
         space_obj,
-        {"content_type": "paragraph", "content_text": "URL:", "is_bold": True},
+        # News URL
+        {"content_type": "paragraph", "content_text": "URL:", "is_bold": True},\
+        # Link to the news
         {
             "content_type": "paragraph",
             "content_text": news_url,

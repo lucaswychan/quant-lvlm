@@ -142,7 +142,6 @@ class NotionClient:
         self._client.pages.update(self._check_subpage_exists(title)[1], archived=True)
 
 
-
 if __name__ == "__main__":
     notion = NotionClient()
 

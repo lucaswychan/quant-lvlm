@@ -12,13 +12,13 @@ def main():
     notion = NotionClient()
     scrapper = FinanceNewsScrapper()
     vlm = LlamaVision()
-    
+
     with open("tickers.json", "r") as f:
         tickers = json.load(f)["tickers"]
 
     tickers_news = scrapper.scrap(tickers)
 
-    today = datetime.today().strftime("%m-%d-%Y")
+    today = datetime.today().strftime("%Y-%m-%d")
     sub_page_title = f"{today} - Finance News"
     sub_pages = notion.create_page(sub_page_title)
     sub_pages_id = sub_pages["id"]
@@ -31,8 +31,16 @@ def main():
 
             vlm_response = vlm(VLM_ROLE, prompt, news_image)
 
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
             notion_add_news_part(
-                notion, sub_pages_id, news_title, vlm_response, news_url, ticker
+                notion,
+                sub_pages_id,
+                news_title,
+                vlm_response,
+                news_url,
+                ticker,
+                current_time,
             )
 
 
