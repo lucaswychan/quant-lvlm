@@ -2,7 +2,7 @@
 
 Leveraging large vision language models (LVLM) for quantitative analysis. Current function include finance news article analysis and summarization.
 
-- [Finace News Analysis](#finance-news-analysis)
+- [Finance News Analysis](#finance-news-analysis)
 - [Time Series Analysis](#time-series-analysis)
 
 ## Finance News Analysis
