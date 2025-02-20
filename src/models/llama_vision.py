@@ -2,21 +2,13 @@ import torch
 from PIL import Image
 from transformers import AutoProcessor, MllamaForConditionalGeneration
 
-from utils import get_available_gpu_idx
-
-available_gpu_index = get_available_gpu_idx()
-if available_gpu_index is None:
-    raise RuntimeError("No available GPU found")
-
-available_cuda = f"cuda:{available_gpu_index}"
-print(f"Available GPU index: {available_gpu_index}")
+from src.utils import get_available_gpu
 
 
 class LlamaVision:
     def __init__(self):
-        self.device = torch.device(
-            available_cuda if torch.cuda.is_available() else "cpu"
-        )
+        self.device = torch.device(get_available_gpu())
+
         self.model_id = "meta-llama/Llama-3.2-11B-Vision-Instruct"
         self.model = MllamaForConditionalGeneration.from_pretrained(
             self.model_id, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True

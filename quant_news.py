@@ -1,11 +1,11 @@
 import json
 from datetime import datetime
 
-from llama_vision import LlamaVision
-from news_scrapper import FinanceNewsScrapper
-from notion import NotionClient
-from const import PROMPT_TEMPLATE, VLM_ROLE
-from utils import notion_add_news_part
+from src.models.llama_vision import LlamaVision
+from src.news_scrapper import FinanceNewsScrapper
+from src.notion import NotionClient
+from src.config import PROMPT_TEMPLATE, VLM_ROLE
+from src.utils import notion_add_news_part
 
 
 def main():
