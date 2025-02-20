@@ -1,0 +1,13 @@
+transformers
+torch
+torchvision
+notion_client
+dotenv
+nvidia_smi
+pillow
+pandas
+yfinance
+beautifulsoup4
+pyrate_limiter
+requests
+urllib3
