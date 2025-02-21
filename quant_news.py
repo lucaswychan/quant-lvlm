@@ -1,17 +1,17 @@
 import json
 from datetime import datetime
 
-from src.models.llama_vision import LlamaVision
+from src.config import PROMPT_TEMPLATE, VLM_ROLE
+from src.models.qwen_vision import Qwen25Vision
 from src.news_scrapper import FinanceNewsScrapper
 from src.notion import NotionClient
-from src.config import PROMPT_TEMPLATE, VLM_ROLE
 from src.utils import notion_add_news_part
 
 
 def main():
     notion = NotionClient()
     scrapper = FinanceNewsScrapper()
-    vlm = LlamaVision()
+    vlm = Qwen25Vision()
 
     with open("tickers.json", "r") as f:
         tickers = json.load(f)["tickers"]
