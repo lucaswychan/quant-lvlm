@@ -6,7 +6,7 @@ import torch
 from notion import NotionClient
 
 
-def get_available_gpu(raise_error=True):
+def get_available_gpu(use_cpu=True) -> str:
     """
     Get the GPU index which have more than 90% free memory
     """
@@ -36,10 +36,10 @@ def get_available_gpu(raise_error=True):
                 continue
 
     # If no available GPU is found
-    if raise_error:
+    if not use_cpu:
         raise RuntimeError("No available GPU found")
 
-    return None
+    return "cpu"
 
 
 def notion_add_news_part(
