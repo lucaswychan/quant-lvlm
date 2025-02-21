@@ -11,3 +11,7 @@ beautifulsoup4
 pyrate_limiter
 requests
 urllib3
+# It's highly recommanded to use `[decord]` feature for faster video loading.
+qwen-vl-utils[decord]==0.0.8
+git+https://github.com/huggingface/transformers accelerate
+
