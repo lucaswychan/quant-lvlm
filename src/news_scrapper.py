@@ -14,18 +14,20 @@ from requests_cache import CacheMixin, SQLiteCache
 from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
 from urllib3.util import Retry
 
+from utils import process_news_df
+
 
 class CachedLimiterSession(CacheMixin, LimiterMixin, Session):
     pass
 
 
 class FinanceNewsScrapper:
-    def __init__(self, time_range: int = 86400):
+    def __init__(self, time_range: int = 48 * 60 * 60):
         # constant variables
         self.HEADER = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0.1 Safari/605.1.15"
         }
-        self.time_range = time_range
+        self.time_range = time_range # change it to two days range
 
         # session variables
         self.yf_session = CachedLimiterSession(
@@ -63,8 +65,8 @@ class FinanceNewsScrapper:
             news_map = {}
 
             for i in range(len(news_df)):
-                title, news_url = news_df.iloc[i][["title", "link"]]
-                text_and_images = self._get_each_news_content(news_url)
+                title, news_url, image_url = news_df.iloc[i][["title", "news_url", "image_url"]]
+                text_and_images = self._get_each_news_content(news_url, image_url)
 
                 news_map[title] = (*text_and_images, news_url)
 
@@ -79,29 +81,20 @@ class FinanceNewsScrapper:
         today_time = datetime.now()
         # convert to unix timestamp
         today_time = int(today_time.timestamp())
-        one_day_ago_time = today_time - self.time_range
-
-        # filter the news that published within 24 hours
-        def filter_time(news: pd.DataFrame) -> pd.DataFrame:
-            if news.empty:
-                return news
-
-            news = news[
-                (news["providerPublishTime"] >= one_day_ago_time)
-                & (news["providerPublishTime"] <= today_time)
-            ]
-            return news
+        day_ago_time = today_time - self.time_range # please refer to the __init__ to see what time_range is (e.g. one day ago / two days ago)
 
         tickers_obj = yf.Tickers(tickers, session=self.yf_session)
+
+        # get the news
         tickers_news = {
-            ticker: filter_time(pd.DataFrame(news))
+            ticker: process_news_df(pd.DataFrame(news), day_ago_time, today_time)
             for ticker, news in tickers_obj.news().items()
         }
 
         return tickers_news
 
     def _get_each_news_content(
-        self, news_url: str
+        self, news_url: str, image_url: Optional[str]
     ) -> tuple[str, Optional[Image.Image]]:
         """
         Get the text and image from the news_url. Only one news is processed in this function.
@@ -127,10 +120,11 @@ class FinanceNewsScrapper:
                 text = text.replace(word, "")
 
         # get the image
-        if image_element := soup.find("img", class_="caas-img has-preview"):
-            image_url = image_element["src"]
-            response = self.requests_session.get(image_url)
-            image = Image.open(BytesIO(response.content))
+        if image_url is None:
+            if image_element := soup.find("img", class_="caas-img has-preview"):
+                image_url = image_element["src"]
+                response = self.requests_session.get(image_url)
+                image = Image.open(BytesIO(response.content))
 
         return text, image
 
