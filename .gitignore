@@ -6,3 +6,10 @@ venv/
 __pycache__/
 yfinance.cache
 .env
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
