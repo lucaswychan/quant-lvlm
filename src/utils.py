@@ -1,7 +1,11 @@
 import re
+import json
+from datetime import datetime
+import calendar
 
 import nvidia_smi
 import torch
+import pandas as pd
 
 from notion import NotionClient
 
@@ -40,6 +44,60 @@ def get_available_gpu(use_cpu=True) -> str:
         raise RuntimeError("No available GPU found")
 
     return "cpu"
+
+
+def process_news_df(news: pd.DataFrame, day_ago_time: int, today_time: int) -> pd.DataFrame:
+    """
+    After updating yfinance to 0.2.54, the news' dataframe is changed completely. 
+    Now all the meta data of the news are stored in a column "content", with each row a dictionary storing the meta data of a news.
+    """
+    if news.empty:
+        return news
+    
+    news_content_jsons = list(news["content"])
+    with open('news_content.json', 'w') as fp:
+        json.dump(list(news_content_jsons)[0], fp, indent=4)
+    
+    news_content_df = pd.DataFrame(news_content_jsons)
+    
+    target_columns = ["title", "summary", "pubDate"]
+    
+    # convert the date to timestamp
+    news_content_df = news_content_df[target_columns]
+
+    news_content_df["pubDate"] = news_content_df["pubDate"].apply(
+        lambda x: datetime.strptime(x, "%Y-%m-%dT%H:%M:%SZ")
+    ).apply(lambda x: calendar.timegm(x.timetuple()))
+    
+    news_url_list = []
+    image_url_list = []
+    
+    for news_json in news_content_jsons:
+        # assign the news_url and image_url
+        
+        news_url = None
+        if news_json.get("canonicalUrl", None) is not None:
+            news_url = news_json["canonicalUrl"].get("url")
+        
+        news_url_list.append(news_url)
+        
+        image_url = None
+        if news_json.get("thumbnail", None) is not None:
+            image_url = news_json["thumbnail"].get("originalUrl")
+        
+        image_url_list.append(image_url)
+    
+    news_content_df["news_url"] = news_url_list
+    news_content_df["image_url"] = image_url_list
+    
+    # filter the news that published within a time range
+    news_content_df = news_content_df[
+        (news_content_df["pubDate"] >= day_ago_time)
+        & (news_content_df["pubDate"] <= today_time)
+    ]
+    
+    news_content_df.to_csv("processed_news_content.csv", index=False)
+    return news_content_df
 
 
 def notion_add_news_part(
